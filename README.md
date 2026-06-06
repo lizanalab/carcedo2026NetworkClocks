@@ -1,5 +1,3 @@
-# carcedo2026NetworkClocks
-
 # DNAm Network Clock
 
 Code and analysis for **"A network approach to DNA methylation clocks"**, Carcedo et al., 2026.
