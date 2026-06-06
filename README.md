@@ -4,18 +4,25 @@ Code and analysis for **"A network approach to DNA methylation clocks"**, Carced
 
 This repository implements a network-based epigenetic age clock built on DNA methylation data. CpG sites pre-filtered by their Spearman correlation with age are organised into a correlation network, Infomap-clustered into modules, and used to train two complementary clock variants (a Ridge regression on per-module-sampled CpGs and a PCA clock on whole modules), benchmarked against five published reference clocks (Horvath, Hannum, AltumAge, Skin & Blood, Han) on three external EPIC cohorts.
 
-## Repository layout
-notebooks/
-01_filter_betas.ipynb            Filter CpGs by |Spearman ρ(age)| 
-02_build_network.ipynb           CpG×CpG correlation network at τ, Infomap clustering
-03_network_clock_ridge.ipynb     Ridge "Network Clock" — random N CpGs per module, M-sweep
-03_pca_clock.ipynb            Three PCA clock variants: modules / whole network / whole dataset
-test_network_clock_3cohorts.ipynb  Hold-out evaluation on GSE235717, GSE217633, GSE200376
-plot_clocks.ipynb                Six-panel main figure
-figure_clock_problems.ipynb      Clock-overlap, array-coverage, ρ(age) distribution figure
-plot_communities_rho_compare.ipynb  Network/module visualisations at multiple filtering thresholds
+## Repository structure
 
-The notebooks are designed to run in this order; downstream notebooks read the cached intermediates (CSVs, `.npz`, `.pkl`) produced by earlier ones.
+All analysis notebooks live in `notebooks/` and are designed to run in pipeline order.
+Each one **computes results and renders the figures that depend on those results inline**,
+so you can read a notebook end-to-end and see both the numbers and the plots they produce.
+The final `plot_clocks.ipynb` is purely a composite step: it consumes the CSVs the other
+notebooks have written and arranges several of their subplots into the main multi-panel
+figure of the paper.
+
+| Notebook | What it computes | Figures rendered inline |
+|---|---|---|
+| `01_filter_betas.ipynb` | Filter CpGs by |Spearman ρ(age)| ≥ 0.35 | filter diagnostics |
+| `02_build_network.ipynb` | CpG×CpG correlation network at τ=0.70 + Infomap clustering | correlation histogram |
+| `03_network_clock_ridge.ipynb` | Ridge "Network Clock" — random N per module, M-sweep | R² vs N (panel a), N=100 test scatter (panel b) |
+| `03_pca_clock_v2.ipynb` | Three PCA clock variants: modules / whole network / whole dataset | per-clock K-sweep, top-K loadings |
+| `test_network_clock.ipynb` | Hold-out evaluation on three external EPIC cohorts | external scatters, K/N curves, error boxplots |
+| `plot_figure_2_clock_problems.ipynb` | Clock overlap, array coverage, ρ(age) distribution analysis | the full clock-problems figure |
+| `plot_communities_network.ipynb` | Network/module visualisations | community-coloured graph plots |
+| `plot_figure_6_clocks_comparison.ipynb` | **Composite only** — assembles subplots from the above into the main results figure | 2×3 composite figure |
 
 ## Reproducing the figures
 
