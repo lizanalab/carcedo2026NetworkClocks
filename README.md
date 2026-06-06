@@ -19,7 +19,7 @@ figure of the paper.
 | `02_build_network.ipynb` | CpG×CpG correlation network at τ=0.70 + Infomap clustering | correlation histogram |
 | `03_network_clock_ridge.ipynb` | Ridge "Network Clock" — random N per module, M-sweep | R² vs N (panel a), N=100 test scatter (panel b) |
 | `03_pca_clock_v2.ipynb` | Three PCA clock variants: modules / whole network / whole dataset | per-clock K-sweep, top-K loadings |
-| `test_network_clock.ipynb` | Hold-out evaluation on three external EPIC cohorts | external scatters, K/N curves, error boxplots |
+| `test_network_clocks.ipynb` | Hold-out evaluation on three external EPIC cohorts | external scatters, K/N curves, error boxplots |
 | `plot_figure_2_clock_problems.ipynb` | Clock overlap, array coverage, ρ(age) distribution analysis | the full clock-problems figure |
 | `plot_communities_network.ipynb` | Network/module visualisations | community-coloured graph plots |
 | `plot_figure_6_clocks_comparison.ipynb` | **Composite only** — assembles subplots from the above into the main results figure | 2×3 composite figure |
@@ -68,11 +68,11 @@ Raw methylation data for the training set (1,917 samples across 12 studies, ages
 
 External validation cohorts (EPIC v1):
 
-| Accession | n | Description |
-|---|---|---|
-| GSE235717 | [n] | [brief description] |
-| GSE217633 | [n] | [brief description] |
-| GSE200376 | [n] | [brief description] |
+| Dataset | N | Disease groups | Tissue |
+|---|---|---|---|
+| GSE235717 | 35 | aging study (no cases/controls) | WB |
+| GSE217633 | 88 | Control (44) / HIV (44) | WB |
+| GSE200376 | 64 | Control (19) / psoriasis_arthritis (25) / psoriasis_vulgaris (20) | **PBMC** |
 
 Preprocessing of the raw IDATs into a combined β-value matrix is described in the manuscript Methods. The derived **filtered beta matrix** (`BetaMatrix_0.35.tsv`), per-CpG **age correlations** (`Correlations.txt`), and **trained clock pickles** (Ridge + three PCA variants) are archived on Zenodo with DOI [10.5281/zenodo.XXXXXXX] for direct reproduction of the figures.
 
