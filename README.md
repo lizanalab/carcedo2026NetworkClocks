@@ -80,7 +80,7 @@ Preprocessing of the raw IDATs into a combined β-value matrix is described in t
 
 If you use this code or the trained clocks, please cite:
 
-> Carcedo, A. et al. (2026). [Manuscript title]. *PLOS Computational Biology*. https://doi.org/[paper DOI]
+> Carcedo, A. et al. (2026). A Network Approach to DNA methylation Clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
 
 A versioned snapshot of this repository is archived at:
 
