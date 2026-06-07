@@ -1,4 +1,4 @@
-# DNAm Network Clock
+# A network approach to DNA methylation clocks
 
 Code and analysis for **"A network approach to DNA methylation clocks"**, Carcedo et al., 2026.
 
@@ -80,7 +80,7 @@ Preprocessing of the raw IDATs into a combined β-value matrix is described in t
 
 If you use this code or the trained clocks, please cite:
 
-> Carcedo, A. et al. (2026). A Network Approach to DNA methylation Clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
+> Carcedo, A. et al. (2026). A network approach to DNA methylation clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
 
 A versioned snapshot of this repository is archived at:
 
