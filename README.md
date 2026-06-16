@@ -23,6 +23,8 @@ figure of the paper.
 | `plot_figure_2_clock_problems.ipynb` | Clock overlap, array coverage, ρ(age) distribution analysis | the full clock-problems figure |
 | `plot_communities_network.ipynb` | Network/module visualisations | community-coloured graph plots |
 | `plot_figure_6_clocks_comparison.ipynb` | **Composite only** — assembles subplots from the above into the main results figure | 2×3 composite figure |
+| `clock_random_vs_pagerank.ipynb` | Runs the network clock choosing modules by size but random CpG vs also using PageRank to select CpG | Supplementary figure slecting modules and CpGs |
+
 
 ## Reproducing the figures
 
