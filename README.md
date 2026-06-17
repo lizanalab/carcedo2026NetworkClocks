@@ -1,6 +1,6 @@
 # A network approach to DNA methylation clocks
 
-Code and analysis for **"A network approach to DNA methylation clocks"**, Carcedo et al., 2026.
+Code and analysis for **"A network approach to DNA methylation clocks"**, A. Carcedo et al., 2026.
 
 This repository implements a network-based epigenetic age clock built on DNA methylation data. CpG sites pre-filtered by their Spearman correlation with age are organised into a correlation network, Infomap-clustered into modules, and used to train two complementary clock variants (a Ridge regression on per-module-sampled CpGs and a PCA clock on whole modules), benchmarked against five published reference clocks (Horvath, Hannum, AltumAge, Skin & Blood, Han) on three external EPIC cohorts.
 
@@ -78,11 +78,16 @@ External validation cohorts (EPIC v1):
 
 Preprocessing of the raw IDATs into a combined β-value matrix is described in the manuscript Methods. The derived **filtered beta matrix** (`BetaMatrix_0.35.tsv`), per-CpG **age correlations** (`Correlations.txt`), and **trained clock pickles** (Ridge + three PCA variants) are archived on Zenodo with DOI [10.5281/zenodo.XXXXXXX] for direct reproduction of the figures.
 
+## Data Preprocessing
+
+All meta data for each dataset is in `./Meta'.
+
+
 ## Citation
 
 If you use this code or the trained clocks, please cite:
 
-> Carcedo, A. et al. (2026). A network approach to DNA methylation clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
+> A. Carcedo et al. (2026). A network approach to DNA methylation clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
 
 A versioned snapshot of this repository is archived at:
 
