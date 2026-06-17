@@ -1,11 +1,13 @@
 import pandas as pd
 import sys
 ###########
-case = sys.argv[1]	#	with_Sex / with_Age / without_All
-if case not in ["with_Sex", "with_Age", "without_All"]:
-	print("Argument Error!")
-	print("three options : with_Sex / with_Age / without_All")
-	sys.exit()
+var = sys.argv[1]	#	Sex / Age / Without
+if var == "Sex":
+	case = "with_Sex"
+elif var == "Age":
+	case = "with_Age"
+else:
+	case = "without_All"
 ###########
 # ----------------------------------
 file = f"./M_{case:s}.tsv"
