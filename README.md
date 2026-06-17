@@ -80,7 +80,15 @@ Preprocessing of the raw IDATs into a combined β-value matrix is described in t
 
 ## Data Preprocessing
 
-All meta data for each dataset is in `./Meta'.
+Data preprocessing codes are provided in `./DataPreprocessing'.
+
+| Code | What it computes | Input |
+|---|---| --- |
+| `00_SampleSheet.R` | Read meta data in `./DataPreprocessing/Meta' and raw IDAT files of a given dataset and make samplesheet. | 1. Accession Number (e.g., GSE87571), 2. Data Source (e.g., GEO), 3. Number (e.g., 1,2, or 3). |
+| `01_CellType_Noob_BMIQ.R` | Perform signal correction, probe filtering and normalizations. This code also measures cell composition from the raw data. | 1. Accession Number, 2. Data Source, 3. Number, 4. Array (e.g, 450K or EPIC) |
+| `02_Beta2M.py` | Change β-value matrix into M-value matrix of a given dataset. | 1. Accession Number, 2. Number |
+| `03_ComBat_All.R` | Run ComBat to remove batch effect. | 1. Biological Covariate (e.g., Age, Sex) |
+| `04_M2Beta.py` | Change M-value matrix into β-value matrix for all training dataset. | 1. Biological Covariate |
 
 
 ## Citation
