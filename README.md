@@ -95,7 +95,7 @@ Data preprocessing codes are provided in `./DataPreprocessing'.
 
 If you use this code or the trained clocks, please cite:
 
-> A. Carcedo et al. (2026). A network approach to DNA methylation clocks. *PLOS Computational Biology*. https://doi.org/[paper DOI]
+> A. Carcedo et al. (2026). A network approach to DNA methylation clocks. *bioRxiv*. [https://doi.org/[paper DOI]](https://doi.org/10.64898/2026.06.18.733218)
 
 A versioned snapshot of this repository is archived at:
 
