@@ -214,7 +214,7 @@ Raw IDAT → combined β-matrix. Scripts live in `DataPreprocessing/` and run in
 | `00_SampleSheet.R` | Read metadata in `DataPreprocessing/Meta/` + raw IDATs for a dataset; build a sample sheet | (1) accession e.g. `GSE87571`, (2) source e.g. `GEO`, (3) index e.g. `1` |
 | `01_CellType_Noob_BMIQ.R` | Signal correction, probe filtering, **noob + BMIQ** normalisation; also estimates cell composition | (1) accession, (2) source, (3) index, (4) array e.g. `450K`/`EPIC` |
 | `02_Beta2M.py` | Convert a dataset's β-value matrix to M-values | (1) accession, (2) index |
-| `03_ComBat_All.R` | ComBat batch-effect removal across datasets | (1) biological covariate e.g. `Age`, `Sex` |
+| `03_ComBat_All.R` | ComBat batch-effect removal across datasets | (1) biological covariate e.g. `Age`, `Sex`, or `Without' |
 | `04_M2Beta.py` | Convert the combined M-value matrix back to β-values | (1) biological covariate |
 
 The external EPIC cohorts are normalised with the **same** noob + BMIQ pipeline
