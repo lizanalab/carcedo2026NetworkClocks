@@ -43,7 +43,7 @@ import pandas as pd, pickle
 # beta: a DataFrame of β-values, rows = samples, columns = CpG probe IDs (cg#######)
 beta = pd.read_csv("my_betas.tsv", sep="\t", index_col=0)
 
-# load the trained Module-PCA clock (downloaded from the Zenodo archive, see Data section)
+# load the trained Module-PCA clock 
 with open("outputs/05_pca_clock/module_pca_clock.pkl", "rb") as fh:
     clock = pickle.load(fh)
 
@@ -212,26 +212,6 @@ Defaults reproduce the paper:
 
 ---
 
-## Reproducing the figures
-
-**Fast path (figures in minutes).** Download the pre-computed intermediates from the
-[Zenodo archive](https://doi.org/10.5281/zenodo.XXXXXXX) into `outputs/`, set
-`RECOMPUTE = False` at the top of each plotting notebook, then run the composite/plotting
-notebooks:
-
-```
-plot_figure_6_clocks_comparison.ipynb
-plot_figure_2_clock_problems.ipynb
-plot_communities_network.ipynb
-```
-
-**Full path (from raw IDATs).** Follow [Data preprocessing](#data-preprocessing) to build the
-β-matrix, then run notebooks 1 → 7 in order. The 12.6 GB β-matrix passes (network building,
-PCA fitting) take a few minutes each on a workstation with ≥ 16 GB RAM; intermediates are
-cached to `outputs/` automatically.
-
----
-
 ## Data
 
 **Training set** — 1,917 samples across 12 studies, ages 18–94 (all 450K):
@@ -258,11 +238,6 @@ cached to `outputs/` automatically.
 | GSE235717 | 35 | aging study (no cases/controls) | whole blood |
 | GSE217633 | 88 | Control (44) / HIV (44) | whole blood |
 | GSE200376 | 64 | Control (19) / psoriatic arthritis (25) / psoriasis vulgaris (20) | **PBMC** |
-
-Derived, ready-to-use artefacts are archived on Zenodo (DOI
-[10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX)):
-the filtered β-matrix (`BetaMatrix_0.35.tsv`), per-CpG age correlations (`Correlations.txt`),
-and the trained clock objects (Ridge + three PCA variants).
 
 ---
 
@@ -320,14 +295,11 @@ If you use this code or the trained clocks, please cite:
 > A. Carcedo *et al.* (2026). *A network approach to DNA methylation clocks.* bioRxiv.
 > https://doi.org/10.64898/2026.06.18.733218
 
-Versioned repository snapshot: https://doi.org/10.5281/zenodo.XXXXXXX
-
 ---
 
 ## License
 
 - **Code:** Apache 2.0 (see `LICENSE`).
-- **Derived data & trained clock objects** (Zenodo): CC BY 4.0.
 - **Raw methylation data:** available from GEO / ArrayExpress under each dataset's original
   terms (accessions above and in the manuscript Data Availability Statement).
 
