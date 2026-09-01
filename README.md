@@ -21,6 +21,7 @@ Skin & Blood, Han) on **three external EPIC validation cohorts**.
 - [Quick start](#quick-start) — apply a trained clock to your own β-matrix in ~10 lines
 - [Installation](#installation)
 - [Repository layout](#repository-layout)
+- [The `analysis/` folder](#the-analysis-folder) — reusable training & module-discovery pipeline
 - [Analysis pipeline](#analysis-pipeline) — notebook-by-notebook, in run order
 - [Key parameters](#key-parameters)
 - [Reproducing the figures](#reproducing-the-figures)
@@ -86,11 +87,11 @@ Tested with **Python 3.11** on Ubuntu 24.04 and macOS 14. Core dependencies (pin
 
 ```
 .
-├── notebooks/                # analysis notebooks, run in the order in the table below
+├── notebook/                 # analysis notebooks, run in the order in the table below
 │   ├── 01_filter_betas.ipynb
 │   ├── 02_build_network.ipynb
 │   ├── 03_network_clock_ridge.ipynb
-│   ├── 03_pca_clock.ipynb
+│   ├── 03_pca_clock_v3.ipynb
 │   ├── test_network_clocks.ipynb
 │   ├── plot_figure_2_clock_problems.ipynb
 │   ├── plot_communities_network.ipynb
@@ -104,6 +105,14 @@ Tested with **Python 3.11** on Ubuntu 24.04 and macOS 14. Core dependencies (pin
 │   ├── 03_ComBat_All.R
 │   └── 04_M2Beta.py
 ├── outputs/                  # all computed intermediates + figures (see Outputs)
+├── analysis/                 # reusable training & module-discovery pipeline (NEW — see below)
+│   ├── config.py             #   parameters: rho=0.35, tau=0.70, K=60, seed=42
+│   ├── pipeline.py           #   CpG age-filter -> co-methylation network -> Infomap modules
+│   ├── clocks.py             #   train Module-PCA / ElasticNet clocks
+│   ├── io_utils.py           #   data loading, ComBat, figure saving
+│   ├── stats_utils.py        #   reference-clock prediction + significance tests
+│   ├── synth.py              #   synthetic-data generator -> run the pipeline without real data
+│   └── __init__.py
 ├── environment.yml           # conda environment
 ├── requirements.txt          # pip fallback
 └── README.md
@@ -112,6 +121,58 @@ Tested with **Python 3.11** on Ubuntu 24.04 and macOS 14. Core dependencies (pin
 > **Note on file names.** Every notebook is referenced by the **exact** name above throughout
 > this README. The composite figure notebook is `plot_figure_6_clocks_comparison.ipynb`; it
 > only re-arranges subplots that the upstream notebooks have already written to `outputs/`.
+
+---
+
+## The `analysis/` folder
+
+The `analysis/` folder packages the **training and module-discovery workflow** — CpG
+age-filtering, co-methylation network construction, Infomap module detection, and clock
+fitting — as small, importable Python functions. It complements the notebooks (which run these
+steps on the real data and render the paper's figures) by exposing each step as a documented
+function that can be called directly or re-run inside a cross-validation fold. The same steps
+also run on a bundled **synthetic dataset**, so the full pipeline is reproducible without the
+restricted methylation matrices.
+
+| File | Provides | Pipeline step |
+|------|----------|---------------|
+| `config.py` | all thresholds in one place: rho = 0.35, tau = 0.70, K = 60, seed = 42 | — |
+| `pipeline.py` | `age_filter_cpgs`, `build_network`, `infomap_modules`, `module_median_matrix`, `pagerank_representatives` | **filter -> network -> Infomap -> module summaries** |
+| `clocks.py` | `fit_pca_clock`, `pca_k_sweep`, `fit_enet_clock`, `predict_*` | **clock training** |
+| `io_utils.py` | `load_methylation`, `combat`, `save_fig`, `ResultsLog` | data loading + ComBat |
+| `stats_utils.py` | `predict_reference_clocks`, bootstrap CIs, paired significance tests | benchmark vs reference clocks |
+| `synth.py` | `generate`, `ensure_synthetic` — synthetic beta-matrix with a planted age signal | run the pipeline with no downloads |
+
+### Run the whole workflow on synthetic data (no downloads)
+
+```python
+import os
+os.environ["EPICLOCK_SYNTHETIC"] = "1"            # route the pipeline at synthetic data
+
+from analysis import config, synth, io_utils
+from analysis.pipeline import (age_filter_cpgs, build_network, infomap_modules,
+                                module_cpg_lists, module_median_matrix)
+from analysis.clocks import fit_pca_clock, predict_pca_clock, metrics
+
+synth.ensure_synthetic()                          # writes fictional files into analysis/synthetic_data/
+betas, meta = io_utils.load_methylation(config.SYNTH_DIR / "BetaMatrix_0.35.tsv",
+                                        config.SYNTH_DIR / "Samplesheet.csv")
+ages = meta["Age"].values
+
+keep, rho = age_filter_cpgs(betas, ages, rho_threshold=config.RHO_THRESHOLD)  # step 1: filter CpGs
+G         = build_network(betas, keep, tau=config.TAU_THRESHOLD)              # step 2: co-methylation net
+modmap    = infomap_modules(G)                                                # step 3: Infomap modules
+X         = module_median_matrix(betas, module_cpg_lists(modmap))             # per-module summary matrix
+clock     = fit_pca_clock(X.values, ages, K=config.K_PCS_DEFAULT)             # step 4: Module-PCA clock
+print(metrics(ages, predict_pca_clock(clock, X.values)))
+# -> {'MAE': 3.57, 'RMSE': 4.34, 'R2': 0.95, ...}  on ~300 synthetic samples
+```
+
+To run on **real data**, skip the synthetic block and pass your own beta-matrix (CpGs x samples,
+tab-separated) and sample sheet (with an `Age` column) to
+`io_utils.load_methylation(beta_path, sheet_path)`; the four pipeline steps are identical.
+All thresholds live in `analysis/config.py`. See the [Data](#data) section for the training and
+validation accessions.
 
 ---
 
@@ -127,7 +188,7 @@ results are cached and later steps do not recompute upstream ones.
 | 1 | `01_filter_betas.ipynb` | raw β-matrix | Filter CpGs by \|Spearman ρ(age)\| ≥ 0.35 | `BetaMatrix_0.35.tsv`, `Correlations.txt`; filter diagnostics |
 | 2 | `02_build_network.ipynb` | filtered β-matrix | CpG×CpG correlation network at τ = 0.70 + Infomap clustering | module assignments; correlation histogram |
 | 3a | `03_network_clock_ridge.ipynb` | filtered β + modules | Ridge "Network Clock": random *N* CpGs per module, sweep over *N* and #modules *M* | R² vs *N* (Fig 6a), *N*=100 test scatter (Fig 6b) |
-| 3b | `03_pca_clock.ipynb` | filtered β + modules | Three PCA variants: **per-module**, whole-network, whole-dataset; sweep over *K* | per-clock *K*-sweep (Fig 6d), top-*K* loadings |
+| 3b | `03_pca_clock_v3.ipynb` | filtered β + modules | Three PCA variants: **per-module**, whole-network, whole-dataset; sweep over *K* | per-clock *K*-sweep (Fig 6d), top-*K* loadings |
 | 4 | `test_network_clocks.ipynb` | trained clocks + 3 EPIC cohorts | Hold-out evaluation on external cohorts vs 5 reference clocks | external scatters, *K*/*N* curves, error boxplots (Fig 6c/e/f) |
 | 5 | `plot_figure_2_clock_problems.ipynb` | reference-clock metadata | Clock overlap, array coverage, ρ(age) distributions | Figure 2 (clock problems) |
 | 6 | `plot_communities_network.ipynb` | network + modules | Network / module visualisations | community-coloured graph plots |
