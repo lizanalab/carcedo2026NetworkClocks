@@ -1,0 +1,4 @@
+Dataset,Platform,n_samples,age_min,age_max,n_control,n_sick,disease_groups
+GSE217633,EPIC v1,88,19,67,44,44,Control (44) / HIV (44)
+GSE200376,EPIC v1,64,29,68,19,45,Control (19) / psoriasis arthritis (25) / psoriasis vulgaris (20)
+GSE235717,EPIC v1,35,23,77,0,0,aging cohort (no case/control labels)

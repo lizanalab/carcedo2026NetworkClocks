@@ -117,9 +117,11 @@ Tested with **Python 3.11** on Ubuntu 24.04 and macOS 14. Core dependencies (pin
 │   ├── 02_Beta2M.py
 │   ├── 03_ComBat_All.R
 │   └── 04_M2Beta.py
-├── samples/                  # exact sample lists (see Data)
+├── samples/                  # exact sample lists + per-dataset summaries (see Data)
 │   ├── SampleSheet_training.csv     #   1,917 training samples, grouped by dataset
-│   └── SampleSheet_validation.csv   #   187 external-validation samples, grouped by dataset
+│   ├── SampleSheet_validation.csv   #   187 external-validation samples, grouped by dataset
+│   ├── dataset_training.csv         #   per-dataset summary: n, age range, controls/cases
+│   └── dataset_validation.csv       #   per-dataset summary: n, age range, controls/cases
 ├── outputs/                  # all computed intermediates + figures (see Outputs)
 ├── analysis/                 # reusable training & module-discovery pipeline (NEW — see below)
 │   ├── config.py             #   parameters: rho=0.35, tau=0.70, K=60, seed=42
@@ -279,7 +281,9 @@ columns `Dataset, Sample_ID, Age, Sex, Disease, CellType`:
 `samples/SampleSheet_training.csv` (1,917 samples, 12 datasets) and
 `samples/SampleSheet_validation.csv` (187 samples, 3 datasets). Sample IDs are GSM accessions
 (E-MTAB-4931 uses its ArrayExpress IDAT basenames); both sheets are derived from the per-dataset
-metadata in `DataPreprocessing/Meta/`.
+metadata in `DataPreprocessing/Meta/`. Coarse per-dataset summaries — sample count, age range and
+control/case counts per dataset — are given in `samples/dataset_training.csv` and
+`samples/dataset_validation.csv`.
 
 ---
 
