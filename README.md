@@ -117,6 +117,9 @@ Tested with **Python 3.11** on Ubuntu 24.04 and macOS 14. Core dependencies (pin
 │   ├── 02_Beta2M.py
 │   ├── 03_ComBat_All.R
 │   └── 04_M2Beta.py
+├── samples/                  # exact sample lists (see Data)
+│   ├── SampleSheet_training.csv     #   1,917 training samples, grouped by dataset
+│   └── SampleSheet_validation.csv   #   187 external-validation samples, grouped by dataset
 ├── outputs/                  # all computed intermediates + figures (see Outputs)
 ├── analysis/                 # reusable training & module-discovery pipeline (NEW — see below)
 │   ├── config.py             #   parameters: rho=0.35, tau=0.70, K=60, seed=42
@@ -270,6 +273,13 @@ To only **apply** the published clock to your own samples you need none of the a
 | GSE235717 | 35 | aging study (no cases/controls) | whole blood |
 | GSE217633 | 88 | Control (44) / HIV (44) | whole blood |
 | GSE200376 | 64 | Control (19) / psoriatic arthritis (25) / psoriasis vulgaris (20) | **PBMC** |
+
+**Exact sample lists.** The `samples/` folder lists every sample used, grouped by dataset, with
+columns `Dataset, Sample_ID, Age, Sex, Disease, CellType`:
+`samples/SampleSheet_training.csv` (1,917 samples, 12 datasets) and
+`samples/SampleSheet_validation.csv` (187 samples, 3 datasets). Sample IDs are GSM accessions
+(E-MTAB-4931 uses its ArrayExpress IDAT basenames); both sheets are derived from the per-dataset
+metadata in `DataPreprocessing/Meta/`.
 
 ---
 
