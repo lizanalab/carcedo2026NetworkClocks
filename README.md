@@ -38,23 +38,36 @@ Skin & Blood, Han) on **three external EPIC validation cohorts**.
 If you only want to **age-predict your own samples** with the trained clock (no retraining):
 
 ```python
-import pandas as pd, pickle
+import pandas as pd, numpy as np, pickle
 
 # beta: a DataFrame of β-values, rows = samples, columns = CpG probe IDs (cg#######)
 beta = pd.read_csv("my_betas.tsv", sep="\t", index_col=0)
 
-# load the trained Module-PCA clock 
-with open("outputs/05_pca_clock/module_pca_clock.pkl", "rb") as fh:
+# load the trained Module-PCA clock (a dict of fitted components, not an object)
+with open("outputs/05_pca_clock/saved_clocks/pca_clock.pkl", "rb") as fh:
     clock = pickle.load(fh)
 
-pred_age = clock.predict(beta)     # predicted epigenetic age, one value per sample
+def predict_age(beta, clock):
+    order, cdef = clock["cluster_order"], clock["cluster_definitions"]
+    # one feature per module: median β across the module's CpGs (missing CpGs skipped)
+    X = np.column_stack([
+        beta.reindex(columns=[c for c in cdef[m]["cpgs"] if c in beta.columns]).median(axis=1).values
+        for m in order])
+    X  = np.where(np.isnan(X), np.nanmean(X, axis=0), X)         # mean-impute empty modules
+    Xs = (X - clock["scaler_mean"]) / clock["scaler_scale"]
+    Z  = (Xs - clock["pca_mean"]) @ clock["pca_components"].T    # project onto PCs
+    K, mdl = clock["best_K"], clock["clock_by_K"][clock["best_K"]]
+    return Z[:, :K] @ np.asarray(mdl["pc_coefs"]) + mdl["intercept"]
+
+pred_age = predict_age(beta, clock)   # predicted epigenetic age, one value per sample
 ```
 
 Notes:
 - Input β-values must be on the **same normalisation footing** as the training data
   (noob + BMIQ; see [Data preprocessing](#data-preprocessing)). The clock handles the
   450K → EPIC probe mismatch internally by intersecting on shared CpGs.
-- CpGs absent from your array are mean-imputed against the training distribution.
+- CpGs absent from your array are dropped from their module's median; a module with no
+  measured CpG falls back to the cohort mean.
 
 To **retrain from scratch** or reproduce every figure, follow the
 [analysis pipeline](#analysis-pipeline) below.
@@ -64,8 +77,8 @@ To **retrain from scratch** or reproduce every figure, follow the
 ## Installation
 
 ```bash
-git clone https://github.com/<user>/<repo>.git
-cd <repo>
+git clone https://github.com/lizanalab/carcedo2026NetworkClocks.git
+cd carcedo2026NetworkClocks
 conda env create -f environment.yml     # creates env "dnam-network-clock"
 conda activate dnam-network-clock
 ```
@@ -212,6 +225,25 @@ Defaults reproduce the paper:
 
 ---
 
+## Reproducing the figures
+
+This repository ships the **trained clocks** (`outputs/05_pca_clock/saved_clocks/`) and the
+per-CpG age correlations (`outputs/Correlations.txt`). The large β-matrices and the per-figure
+intermediate tables are not redistributed here; regenerate them as follows:
+
+1. Download the training and validation data from the accessions in [Data](#data) (GEO / ArrayExpress).
+2. Run `DataPreprocessing/` (noob + BMIQ, ComBat) to build the combined β-matrix.
+3. Run the notebooks in order (`01` → `04`); each writes its intermediates to `outputs/`,
+   recreating `outputs/05_clock/…` and `outputs/test_network_clock_3cohorts/…`.
+4. Run the plotting notebooks — `plot_figure_6_clocks_comparison.ipynb` (main results, Figure 6)
+   and `plot_figure_2_clock_problems.ipynb` (Figure 2) — which assemble the tables into the
+   final figures.
+
+To only **apply** the published clock to your own samples you need none of the above — see
+[Quick start](#quick-start).
+
+---
+
 ## Data
 
 **Training set** — 1,917 samples across 12 studies, ages 18–94 (all 450K):
@@ -262,15 +294,23 @@ The external EPIC cohorts are normalised with the **same** noob + BMIQ pipeline
 
 `outputs/` is organised by pipeline stage. The main files a reader will want:
 
-| File | Produced by | Contents |
-|------|-------------|----------|
-| `BetaMatrix_0.35.tsv` | 01 | Age-filtered β-matrix (CpGs × samples) |
-| `Correlations.txt` | 01 | Per-CpG Spearman ρ with age |
-| `module_assignments.csv` | 02 | Infomap module label per CpG |
-| `module_pca_clock.pkl` | 03b | Trained Module-PCA clock (used in Quick start) |
-| `network_clock_ridge.pkl` | 03a | Trained Ridge Network Clock |
-| `external_predictions.csv` | 04 | Per-sample predicted vs chronological age, all clocks, 3 cohorts |
-| `mae_by_clock.csv` | 04 | MAE / R² per clock per cohort (the Fig 6f numbers) |
+| File | Produced by | In repo? | Contents |
+|------|-------------|:--:|----------|
+| `outputs/05_pca_clock/saved_clocks/pca_clock.pkl` | 03b | ✅ | Trained **Module-PCA clock** (best variant; used in Quick start) |
+| `outputs/05_pca_clock/saved_clocks/pca_network_clock.pkl` | 03b | ✅ | Whole-network PCA clock (baseline) |
+| `outputs/05_pca_clock/pca_clock_summary.csv` | 03b | ✅ | Module-PCA *K*-sweep metrics (R² / MAE per *K*) |
+| `outputs/05_pca_clock/pca_network_clock_summary.csv` | 03b | ✅ | Whole-network PCA *K*-sweep metrics |
+| `outputs/Correlations.txt` | 01 | ✅ | Per-CpG Spearman ρ with age (7,329 CpGs) |
+| `outputs/01_filtered_betas/BetaMatrix_0.35.tsv` | 01 | ✗ | Age-filtered β-matrix — regenerate from GEO (too large to commit) |
+| `outputs/02_network/module_assignments_0.70.csv` | 02 | ✗ | Infomap module label per CpG — regenerate by running notebook 02 |
+| `outputs/05_clock/…`, `outputs/test_network_clock_3cohorts/…` | 03–04 | ✗ | Sweep results + external predictions consumed by Fig 6 — regenerate by running notebooks 03–04 |
+
+> **What ships in this repo.** The trained clocks, their *K*-sweep summaries, and the per-CpG
+> age-correlation file are committed under `outputs/`, so you can apply the clock immediately
+> (see [Quick start](#quick-start)). The large β-matrices and the per-figure intermediate CSVs
+> are **not** committed (size / GEO redistribution terms); reproduce them by downloading the
+> data from the accessions in [Data](#data) and running the notebooks in order — see
+> [Reproducing the figures](#reproducing-the-figures).
 
 ---
 
