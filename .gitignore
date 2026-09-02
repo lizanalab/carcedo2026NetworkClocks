@@ -1,0 +1,7 @@
+# large data — obtain from GEO + DataPreprocessing, don't commit
+outputs/**/*.tsv
+outputs/BetaCorrel_0.35.tsv
+outputs/_betas_cache/
+outputs/01_filtered_betas/
+**/__pycache__/
+.DS_Store
