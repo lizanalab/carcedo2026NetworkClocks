@@ -1,0 +1,12 @@
+# Python 3.11 — dependencies for the network-clock training & figure pipeline
+# Version floors reflect the APIs used; the pipeline was developed on Python 3.11.
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+scikit-learn>=1.3
+statsmodels>=0.14
+networkx>=3.2
+matplotlib>=3.7
+seaborn>=0.12
+infomap>=2.7        # Infomap community detection (pip-only)
+pyaging>=0.1        # reference epigenetic clocks (pip-only)
